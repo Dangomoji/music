@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  BackHandler,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image, BackHandler } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Audio } from "expo-av";
-import { musicTracks } from "./MusicTrack";
 import { Ionicons } from "@expo/vector-icons";
+
+import { musicTracks} from "./MusicTrack";
 
 export default function MusicPlayer({ route, navigation }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -26,9 +20,9 @@ export default function MusicPlayer({ route, navigation }) {
   }, [route.params]);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", async (e) => {
+    const unsubscribe = navigation.addListener("beforeRemove", async () => {
       if (sound) {
-        stopSound();
+        await stopSound();
       }
     });
 
@@ -94,25 +88,15 @@ export default function MusicPlayer({ route, navigation }) {
   };
 
   const nextTrack = async () => {
-    let newIndex;
-    if (currentTrackIndex < musicTracks.length - 1) {
-      newIndex = currentTrackIndex + 1;
-    } else {
-      newIndex = 0;
-    }
+    let newIndex = (currentTrackIndex + 1) % musicTracks.length;
     setCurrentTrackIndex(newIndex);
-    stopSound()
+    await stopSound();
   };
 
   const previousTrack = async () => {
-    let newIndex;
-    if (currentTrackIndex > 0) {
-      newIndex = currentTrackIndex - 1;
-    } else {
-      newIndex = musicTracks.length - 1;
-    }
+    let newIndex = (currentTrackIndex - 1 + musicTracks.length) % musicTracks.length;
     setCurrentTrackIndex(newIndex);
-    stopSound()
+    await stopSound();
   };
 
   const handleSliderChange = (value) => {
@@ -123,19 +107,7 @@ export default function MusicPlayer({ route, navigation }) {
   const soundStatusUpdate = (status) => {
     setPositionMillis(status.positionMillis);
   };
-
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      () => {
-        stopSound();
-        return false;
-      }
-    );
-
-    return () => backHandler.remove();
-  }, []);
-
+  
   useEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -151,6 +123,7 @@ export default function MusicPlayer({ route, navigation }) {
       ),
     });
   }, [navigation]);
+
 
   return (
     <View style={styles.container}>
@@ -217,5 +190,10 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     fontWeight: "bold",
     color: "white"
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: 20,
+    right: 20,
   },
 });
