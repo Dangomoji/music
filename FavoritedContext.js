@@ -9,11 +9,11 @@ export const FavoritedTracksProvider = ({ children }) => {
     setFavoritedTracks((prevFavoritedTracks) => [...prevFavoritedTracks, track]);
   };
 
-  const removeFromFavorites = (trackIndex) => {
+  const removeFromFavorites = (trackToRemove) => {
     setFavoritedTracks((prevFavoritedTracks) =>
-      prevFavoritedTracks.filter((_, index) => index !== trackIndex)
+      prevFavoritedTracks.filter((track) => track.title !== trackToRemove.title)
     );
-  };
+  };  
 
   return (
     <FavoritedTracksContext.Provider value={{ favoritedTracks, addToFavorites, removeFromFavorites }}>

@@ -11,9 +11,11 @@ const FavoritedScreen = ({ navigation }) => {
   }, [favoritedTracks]);
 
   const navigateToMusicPlayer = (track) => {
-    const trackIndex = musicTracks.findIndex(item => item.title === track.title);
-    navigation.navigate('MusicPlayer', { trackIndex });
+    const selectedIndex = musicTracks.findIndex(item => item.title === track.title);
+    console.log(selectedIndex)
+    navigation.navigate('MusicPlayer', { selectedIndex });
   };
+  
 
   return (
     <View style={styles.container}>
@@ -25,7 +27,7 @@ const FavoritedScreen = ({ navigation }) => {
           <TouchableOpacity
             key={index}
             style={styles.trackButton}
-            onPress={() => navigateToMusicPlayer(index)}
+            onPress={() => navigateToMusicPlayer(track)}
           >
             <View style={styles.trackBox}>
               <Image style={styles.trackImage} source={track.image} />

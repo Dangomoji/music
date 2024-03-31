@@ -5,7 +5,6 @@ import {
   View,
   TouchableOpacity,
   Image,
-  BackHandler,
 } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Audio } from "expo-av";
@@ -29,6 +28,12 @@ export default function MusicPlayer({ route, navigation }) {
   useEffect(() => {
     if (route.params && route.params.trackIndex !== undefined) {
       setCurrentTrackIndex(route.params.trackIndex);
+    }
+  }, [route.params]);
+
+  useEffect(() => {
+    if (route.params && route.params.selectedIndex !== undefined) {
+      setCurrentTrackIndex(route.params.selectedIndex);
     }
   }, [route.params]);
 
@@ -130,12 +135,10 @@ export default function MusicPlayer({ route, navigation }) {
 
   const unfavoriteTrack = () => {
     const currentTrack = musicTracks[currentTrackIndex];
-    const index = favoritedTracks.findIndex((track) => track === currentTrack);
-    if (index !== -1) {
-      removeFromFavorites(index);
-      console.log("Track unfavorited:", currentTrack);
-    }
-  };  
+    removeFromFavorites(currentTrack);
+    console.log("Track unfavorited:", currentTrack);
+  };
+  
 
   useEffect(() => {
     navigation.setOptions({
