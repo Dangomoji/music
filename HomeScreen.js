@@ -92,14 +92,14 @@ const styles = StyleSheet.create({
 function HomeScreenWrapper() {
   return (
     <Stack.Navigator
-      initialRouteName="HomeScreen"
+      initialRouteName="Home"
       screenOptions={{
         headerStyle: { backgroundColor: '#800080' },
         headerTintColor: '#FFFFFF',
       }}
     >
       <Stack.Screen
-        name="HomeScreen"
+        name="Home"
         component={HomeScreen}
         options={{ title: 'Nightingale' }}
       />

@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Image, BackHandler } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  BackHandler,
+} from "react-native";
 import Slider from "@react-native-community/slider";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
-
-import { musicTracks} from "./MusicTrack";
+import { musicTracks } from "./MusicTrack";
+import { useFavoritedTracks } from "./FavoritedContext";
 
 export default function MusicPlayer({ route, navigation }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -12,6 +19,12 @@ export default function MusicPlayer({ route, navigation }) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [positionMillis, setPositionMillis] = useState(0);
   const [durationMillis, setDurationMillis] = useState(0);
+  const { favoritedTracks, addToFavorites, removeFromFavorites } =
+    useFavoritedTracks();
+
+  useEffect(() => {
+    console.log("Favorited tracks:", favoritedTracks);
+  }, [favoritedTracks]);
 
   useEffect(() => {
     if (route.params && route.params.trackIndex !== undefined) {
@@ -94,7 +107,8 @@ export default function MusicPlayer({ route, navigation }) {
   };
 
   const previousTrack = async () => {
-    let newIndex = (currentTrackIndex - 1 + musicTracks.length) % musicTracks.length;
+    let newIndex =
+      (currentTrackIndex - 1 + musicTracks.length) % musicTracks.length;
     setCurrentTrackIndex(newIndex);
     await stopSound();
   };
@@ -107,7 +121,22 @@ export default function MusicPlayer({ route, navigation }) {
   const soundStatusUpdate = (status) => {
     setPositionMillis(status.positionMillis);
   };
-  
+
+  const favoriteTrack = () => {
+    const currentTrack = musicTracks[currentTrackIndex];
+    addToFavorites(currentTrack);
+    console.log("Track favorited:", currentTrack);
+  };
+
+  const unfavoriteTrack = () => {
+    const currentTrack = musicTracks[currentTrackIndex];
+    const index = favoritedTracks.findIndex((track) => track === currentTrack);
+    if (index !== -1) {
+      removeFromFavorites(index);
+      console.log("Track unfavorited:", currentTrack);
+    }
+  };  
+
   useEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -115,7 +144,7 @@ export default function MusicPlayer({ route, navigation }) {
           style={styles.headerButton}
           onPress={() => {
             stopSound();
-            navigation.navigate("HomeScreen");
+            navigation.navigate("Home");
           }}
         >
           <Text style={styles.headerButtonText}>Back</Text>
@@ -123,7 +152,6 @@ export default function MusicPlayer({ route, navigation }) {
       ),
     });
   }, [navigation]);
-
 
   return (
     <View style={styles.container}>
@@ -144,6 +172,28 @@ export default function MusicPlayer({ route, navigation }) {
       <Text style={styles.trackTitle}>
         {musicTracks[currentTrackIndex].title}
       </Text>
+      <TouchableOpacity
+        style={styles.controlButton}
+        onPress={() => {
+          const currentTrack = musicTracks[currentTrackIndex];
+          if (favoritedTracks && favoritedTracks.includes(currentTrack)) {
+            unfavoriteTrack();
+          } else {
+            favoriteTrack();
+          }
+        }}
+      >
+        <Ionicons
+          name={
+            favoritedTracks.includes(musicTracks[currentTrackIndex])
+              ? "heart"
+              : "heart-outline"
+          }
+          size={24}
+          color="red"
+        />
+      </TouchableOpacity>
+
       <View style={styles.controls}>
         <TouchableOpacity style={styles.controlButton} onPress={previousTrack}>
           <Ionicons name="play-skip-back-outline" size={24} color="black" />
@@ -184,12 +234,13 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#DDDDDD",
     borderRadius: 5,
+    marginBottom: 10,
   },
   headerButtonText: {
     fontSize: 16,
     paddingLeft: 10,
     fontWeight: "bold",
-    color: "white"
+    color: "white",
   },
   favoriteButton: {
     position: "absolute",
